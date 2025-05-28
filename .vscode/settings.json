@@ -1,0 +1,8 @@
+{
+    "terminal.integrated.commandsToSkipShell": [
+        "  \"PYTHONIOENCODING\": \"utf-8\""
+    ],
+    "terminal.integrated.env.windows": {
+          "PYTHONIOENCODING": "utf-8"
+    }
+}

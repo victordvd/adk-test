@@ -1,0 +1,23 @@
+version: '3.8'
+services:
+  chimei-gpt-ui:
+    restart: always
+    build:
+      context: .
+      dockerfile: Dockerfile.Dev
+      # dockerfile: Dockerfile
+    volumes:
+      - ./.:/app
+      - ~/.config/gcloud:/root/.config/gcloud
+    ports:
+      - 8501:8501
+  chimei-gpt-agent:
+    restart: always
+    build:
+      context: .
+      dockerfile: Dockerfile_Agent.Dev
+    volumes:
+      - ./.:/app
+      - ~/.config/gcloud:/root/.config/gcloud
+    ports:
+      - 8001:8000
