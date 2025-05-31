@@ -16,8 +16,8 @@ import logging
 import argparse
 import sys
 import vertexai
-from agent.agent import root_agent
-from agent.config import Config
+from chimei_gpt_agent.agent import root_agent
+from chimei_gpt_agent.config import Config
 from vertexai import agent_engines
 from vertexai.preview.reasoning_engines import AdkApp
 from google.api_core.exceptions import NotFound
@@ -30,8 +30,8 @@ configs = Config()
 AGENT_WHL_FILE = "./chimei_gpt_agent-0.1.0-py3-none-any.whl"
 
 vertexai.init(
-    project=configs.CLOUD_PROJECT,
-    location=configs.CLOUD_LOCATION,
+    project=configs.GOOGLE_CLOUD_PROJECT,
+    location=configs.GOOGLE_CLOUD_LOCATION,
     staging_bucket=f"gs://{configs.GOOGLE_CLOUD_STORAGE_BUCKET}",
 )
 
@@ -66,17 +66,38 @@ if args.delete:
 
 else:
     logger.info("deploying app...")
-    app = AdkApp(agent=root_agent, enable_tracing=False)
     
     logging.debug("deploying agent to agent engine:")
     remote_app = agent_engines.create(
-        app,
-        requirements=[           
-            AGENT_WHL_FILE,
+        agent_engine=root_agent,
+        display_name=root_agent.name,
+        description=root_agent.description,
+        requirements=[
+            "google-cloud-aiplatform[agent_engines,adk]==1.94.0",
+            "google-genai==1.16.1",
+            "cloudpickle==3.1.1",
+            "pydantic==2.11.5",
+            "python-dotenv (>= 1.0.1)",
+            "litellm==1.71.1"
+            # "google-genai (>=1.9.0,<2.0.0)",
+            # "cloudpickle==3.1.1",
+            # "pydantic (>=2.10.6,<3.0.0)",
+            # "litellm (>=1.69.0)"
         ],
-        extra_packages=[AGENT_WHL_FILE],
+        # env_vars = {
+        #     # "AZURE_API_KEY": "618e2d3eb6674b23a60e185f772b6b33",
+        #     # "AZURE_API_BASE": "https://gcp-ai-test.openai.azure.com",
+        #     # "AZURE_API_VERSION": "2025-01-01-preview",
+        #     # "GOOGLE_CLOUD_PROJECT": "cht-gcp-ai-rag-poc", # google.api_core.exceptions.FailedPrecondition: 400 Environment variable name 'GOOGLE_CLOUD_PROJECT' is reserved. Please rename the variable in `spec.deployment_spec.env`.
+        #     # "GOOGLE_CLOUD_LOCATION": "us-central1",
+        #     # "GOOGLE_CLOUD_STORAGE_BUCKET": "cht-gcp-ai-rag-poc-agent-engine-test",
+        #     # "GOOGLE_GENAI_USE_VERTEXAI": "1"
+        # },
+        extra_packages=["chimei_gpt_agent"],
     )
-    
+
+    app = AdkApp(agent=root_agent, enable_tracing=True)
+
     logging.debug("testing deployment:")
     session = remote_app.create_session(user_id="123")
     for event in remote_app.stream_query(
@@ -85,6 +106,4 @@ else:
         message="hello!",
     ):
         if event.get("content", None):
-            print(
-                f"Agent deployed successfully under resource name: {remote_app.resource_name}"
-            )
+            logger.info(event['content']['parts'][0]['text'])

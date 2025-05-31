@@ -11,6 +11,13 @@ from dotenv import load_dotenv
 load_dotenv()
 # log = logging.getLogger(__name__)
 
+# RESOURCE_ID = "projects/662223484770/locations/us-central1/reasoningEngines/710310899822362624"
+# RESOURCE_ID = "710310899822362624"# gemini
+# RESOURCE_ID = "3728742996951171072" # gemini
+# RESOURCE_ID = "1115142285076463616" # GPT
+# RESOURCE_ID = "4036535883984273408" # YouBike agent v1
+RESOURCE_ID = "2769476276321255424" # YouBike agent v2
+
 vertexai.init(
     project=os.getenv("GOOGLE_CLOUD_PROJECT"),
     location=os.getenv("GOOGLE_CLOUD_LOCATION"),
@@ -95,12 +102,15 @@ if prompt := st.chat_input("What is up?"): # Walrus Operator
     # msg = "hello, I am your assistant."
     # st.session_state.messages.append({"role": "assistant", "content": msg})
     # st.chat_message("assistant").write(msg)
-
-    # RESOURCE_ID = "projects/662223484770/locations/us-central1/reasoningEngines/710310899822362624"
-    RESOURCE_ID = "710310899822362624"
     remote_agent = agent_engines.get(RESOURCE_ID)
+
+    # print('Operation Schemas:')
+    # print(remote_agent.operation_schemas())
+    # print()
+
     remote_session = remote_agent.create_session(user_id="u_456")
     print(remote_session)
+
     # remote_agent = reasoning_engines.ReasoningEngine(RESOURCE_ID)
     # print(remote_agent)
     # log.debug(remote_agent.operation_schemas())
@@ -109,6 +119,7 @@ if prompt := st.chat_input("What is up?"): # Walrus Operator
     # ]})
 
     chatbot_msg = ""
+
     for event in remote_agent.stream_query(
         user_id="u_456",
         session_id=remote_session["id"],
@@ -117,11 +128,18 @@ if prompt := st.chat_input("What is up?"): # Walrus Operator
         # use parse_event_content to generate all text message
         event_content = parse_event_content(event)
         for event_type, content in event_content:
+            
+            print(event_type, content)
+            
             if event_type == 'text':
                 chatbot_msg = chatbot_msg + content
         
 
     st.session_state.messages.append({"role": "assistant", "content": chatbot_msg})
-    st.chat_message("assistant").write(chatbot_msg)
-
+    # st.chat_message("assistant").write(chatbot_msg)
     
+    # Display the assistant's message with embedded HTML using components.html
+    # import streamlit.components.v1 as components
+    with st.chat_message("assistant"):
+        st.markdown(chatbot_msg, unsafe_allow_html=True)
+        # components.html(chatbot_msg, height=600, scrolling=True)

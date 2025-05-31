@@ -1,13 +1,11 @@
 python -m venv .venv
-# Mac / Linux
-source .venv/bin/activate
 
-# Windows PowerShell:
-.venv\Scripts\Activate.ps1
+source .venv/bin/activate # Mac / Linux
+.venv\Scripts\Activate.ps1 # Windows PowerShell
 
 pip install google-adk 
 pip install streamlit
 
 # Set the environment variable for Google Application Credentials
-export GOOGLE_APPLICATION_CREDENTIALS="application_default_credentials.json"
-$env:GOOGLE_APPLICATION_CREDENTIALS="application_default_credentials.json"
+export GOOGLE_APPLICATION_CREDENTIALS="application_default_credentials.json" # Mac / Linux
+$env:GOOGLE_APPLICATION_CREDENTIALS="application_default_credentials.json" # Windows PowerShell:
