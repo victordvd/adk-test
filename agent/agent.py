@@ -20,7 +20,7 @@ from google.adk.agents import Agent
 from google.adk.tools import ToolContext, FunctionTool
 from .config import Config
 from .prompts import GLOBAL_INSTRUCTION
-from .api import youbike_api as ubike
+from .api import youbike_api as ubike, google_map_api as map
 
 warnings.filterwarnings("ignore", category=UserWarning, module=".*pydantic.*")
 
@@ -43,12 +43,13 @@ def get_youbike_info(preference: str, value: str, tool_context: ToolContext):
 
 youbike_station_info_tool = FunctionTool(func=ubike.get_youbike_info)
 youbike_station_list_tool = FunctionTool(func=ubike.get_youbike_locations_in_taipei_city)
+google_map_tool = FunctionTool(func=map.build_map_html)
 
 
 instruction = '''你是個Youbike服務專員，提供使用者有用的站點資訊。
-如果使用者詢問的特定youbike車站資訊，使用 "youbike_station_list_tool" 回應車站的剩餘車輛及存在的車輛數目
-如果使用者詢問的地點不夠明確，使用 "youbike_station_list_tool" 給予最接近的 youbike車站作為提示，
-"youbike_station_list_tool" 所回傳的車站清單會由 "," 分隔。
+- 如果使用者詢問的特定youbike車站資訊，使用 'youbike_station_list_tool' 回應車站的剩餘車輛及存在的車輛數目
+- 如果使用者詢問的地點不夠明確，使用 'youbike_station_list_tool' 給予最接近的youbike車站作為提示，'youbike_station_list_tool' 所回傳的車站清單會由 "," 分隔
+- 如果查詢到youbike車站資訊結果，利用 'google_map_tool' 產生地圖HTML供使用者參考。
 '''
 
 root_agent = Agent(
@@ -56,5 +57,5 @@ root_agent = Agent(
     global_instruction=GLOBAL_INSTRUCTION,
     instruction=instruction,
     name=configs.agent_settings.name,
-    tools=[youbike_station_info_tool,youbike_station_list_tool]
+    tools=[youbike_station_info_tool,youbike_station_list_tool,google_map_tool]
 )

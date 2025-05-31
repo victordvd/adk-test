@@ -28,7 +28,7 @@ logger = logging.getLogger(__name__)
 class AgentModel(BaseModel):
     """Agent model settings."""
 
-    name: str = Field(default="chimei_gpt_agent")
+    name: str = Field(default="youbike_agent")
     model: str = Field(default="gemini-2.0-flash-001")
 
 
@@ -43,7 +43,7 @@ class Config(BaseSettings):
         case_sensitive=True,
     )
     agent_settings: AgentModel = Field(default=AgentModel())
-    app_name: str = "chimei_gpt_agent"
+    app_name: str = "youbike_agent"
     CLOUD_PROJECT: str = Field(default="cht-gcp-ai-rag-poc")
     CLOUD_LOCATION: str = Field(default="us-central1")
     GOOGLE_CLOUD_STORAGE_BUCKET: str = Field(default="cht-gcp-ai-rag-poc-agent-engine-test")

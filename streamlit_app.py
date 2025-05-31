@@ -123,3 +123,5 @@ if prompt := st.chat_input("What is up?"): # Walrus Operator
 
     st.session_state.messages.append({"role": "assistant", "content": chatbot_msg})
     st.chat_message("assistant").write(chatbot_msg)
+
+    
